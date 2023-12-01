@@ -1,7 +1,6 @@
 # Connect4
 
-- [] heurestic
-- [] alpha-beta pruning
-- [] expecti
-- [] GUI integration
--
+- [ ] heurestic
+- [ ] alpha-beta pruning
+- [ ] expecti
+- [ ] GUI integration
