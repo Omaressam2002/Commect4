@@ -71,9 +71,9 @@ def is_terminal(state):
 
 def heuristic(state):
     # basic heuristic for now 
-    if who_win(state) == 1:
+    if who_win(state) == AI_PLAYER:
         return 1000
-    elif who_win(state) == 2:
+    elif who_win(state) == PLAYER:
         return -1000
     return random.randint(-100,100)
 
