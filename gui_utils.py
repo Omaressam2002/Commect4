@@ -34,6 +34,7 @@ def decision_maker(board):
     print(child)
     return child.board
 
+
 def find_inserted_checker(prev_board, current_board):
     for col in range(len(prev_board[0])):
         for row in range(len(prev_board)):

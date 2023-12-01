@@ -6,7 +6,7 @@ import numpy as np
 
 DIMENSIONS = (6,7)
 # DIMENSIONS = (4,4)
-MAX_DEPTH = 10
+MAX_DEPTH = 5
 AI_PLAYER = 2
 PLAYER = 1
 
