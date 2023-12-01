@@ -1,7 +1,7 @@
 import pygame
 import time
 import os
-import gui_utils
+from gui_utils import *
 from gui_widgets import *
 
 # Game window
@@ -76,9 +76,7 @@ def draw_board(board, current_col, current_player):
     
     pygame.display.update()
     
-def toggle_flag (flag):
-    flag = not flag
-    return flag 
+
 
 def main():
 
@@ -143,7 +141,7 @@ def main():
                         pygame.display.update() 
                         
                         if  alpha_beta_pruning == True :
-                            alpha_beta_pruning = toggle_flag(alpha_beta_pruning)  # toggle the minimax expected flag
+                            alpha_beta_pruning = toggle_flag(alpha_beta_pruning)  # toggle the alpha-beta expected flag
                             print("alpha-beta pruning: ", alpha_beta_pruning)
                             radiobutton_image = radiobutton_checked_image if alpha_beta_pruning else radiobutton_unchecked_image
                         
@@ -155,21 +153,15 @@ def main():
                         # Find the lowest empty row in the column
                         for row in range(ROWS - 1, -1, -1):
                             if board[row][col] == 0:
-                                gui_utils.animate_checker_movement(board, row, col, players[current_player])
+                                animate_checker_movement(board, row, col, players[current_player])
                                 board[row][col] = players[current_player]
                                 break
-                            
-                            # winner = gui_utils.check_win(board)
-                            # gui_utils.draw_winner_label(winner)
-                            # print(str(players[current_player]), " WINS")
-                            # time.sleep(1)
-                            # game_over = True
 
                         # Check the winner
                         # 0 -> withdrawal, 1 -> red, 2 -> yellow
-                        if gui_utils.is_board_full(board):
-                            winner = gui_utils.check_win(board)
-                            gui_utils.draw_winner_label(winner)
+                        if is_board_full(board):
+                            winner = check_win(board)
+                            draw_winner_label(winner)
                             print(str(players[current_player]), " WINS")
                             time.sleep(1)
                             # GAME OVER -> GAME ENDS, WILL MODIFY IT LATER ISA
@@ -177,7 +169,16 @@ def main():
 
                         # Switch to the next player
                         # HERE I WILL ADD THE TURN OF AI BUT NOT IMPLEMENTED YET, BS AKENO 2 USERS DED BA3D
-                        current_player = (current_player + 1) % len(players)
+                        current_player = switch_players(current_player, players)
+                        
+                        if current_player == 1 : #AI turn
+                            prev_board = board
+                            board = decision(board)
+                            row, col = find_inserted_checker(prev_board, board)
+                            animate_checker_movement(prev_board, row, col, current_player + 1)
+                            current_player = switch_players(current_player, players)
+                            # draw_board (board, current_col, players[current_player])
+                        
                         current_col = None
 
         # background image

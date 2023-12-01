@@ -10,6 +10,30 @@ def is_board_full(board):
                 return False
     return True 
 
+def toggle_flag (flag):
+    flag = not flag
+    return flag 
+
+def switch_players (player, players):
+    current_player = (player + 1) % len(players)
+    return current_player
+
+def decision(board):
+    # HASSANOLA ALGO GOES HERE
+    # MAKE SURE TO RETURN THE 2D MATRIX AS FOLLOWS :)
+    return [[0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0],
+            [2, 0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0, 0],]
+
+def find_inserted_checker(prev_board, current_board):
+    for col in range(len(prev_board[0])):
+        for row in range(len(prev_board)):
+            if prev_board[row][col] != current_board[row][col]:
+                return row, col
+
 def count_connected_fours(board, player):
     count = 0
 
@@ -72,6 +96,8 @@ def animate_checker_movement(board, row, col, player):
     # Draw the checker at the target position
     game_page.screen.blit(checker_image, target_pos)
     pygame.display.update()
+    
+
     
 def draw_winner_label(player):
     # Determine the player color and text
