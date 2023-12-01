@@ -15,10 +15,10 @@ BLACK = (0, 0, 0)
 DARK_GRAY = (29, 29, 29)
 
 # Images
-CELL_IMAGE = pygame.image.load("assets/board_cell.png")
-RED_CHECKER_IMAGE = pygame.image.load("assets/red_chip.png")
-YELLOW_CHECKER_IMAGE = pygame.image.load("assets/yellow_chip.png")
-BACKGROUND_IMAGE_PATH = os.path.join("assets", "game_page_background.png")
+CELL_IMAGE = pygame.image.load("Commect4/assets/board_cell.png")
+RED_CHECKER_IMAGE = pygame.image.load("Commect4/assets/red_chip.png")
+YELLOW_CHECKER_IMAGE = pygame.image.load("Commect4/assets/yellow_chip.png")
+BACKGROUND_IMAGE_PATH = os.path.join("Commect4/assets", "game_page_background.png")
 
 screen_width = WIDTH + 700
 screen_height = HEIGHT + 200
@@ -37,8 +37,8 @@ board_y = (screen_height - HEIGHT) // 2
 checkbox_x = 50 
 checkbox_y = screen_height // 4
 
-checkbox_checked_image = pygame.image.load("assets/checkbox_checked2.png")
-checkbox_unchecked_image = pygame.image.load("assets/checkbox_unchecked2.png")
+checkbox_checked_image = pygame.image.load("Commect4/assets/checkbox_checked2.png")
+checkbox_unchecked_image = pygame.image.load("Commect4/assets/checkbox_unchecked2.png")
 checkbox_image = checkbox_unchecked_image
 
 strategy_label_x = 50
@@ -48,7 +48,7 @@ radiobutton_x = 50
 radiobutton_y = strategy_label_y + 40
 radiobutton2_y = radiobutton_y + 60
 
-radiobutton_checked_image = pygame.image.load("assets/radiobutton_checked.png")
-radiobutton_unchecked_image = pygame.image.load("assets/radiobutton_unchecked.png")
+radiobutton_checked_image = pygame.image.load("Commect4/assets/radiobutton_checked.png")
+radiobutton_unchecked_image = pygame.image.load("Commect4/assets/radiobutton_unchecked.png")
 radiobutton_image = radiobutton_unchecked_image
 radiobutton2_image = radiobutton_unchecked_image
