@@ -69,7 +69,7 @@ def draw_board(board, current_col, current_player):
     screen.blit(radiobutton_label1, (radiobutton1_label_x, radiobutton1_label_y))
     
     screen.blit(radiobutton2_image, (radiobutton_x, radiobutton2_y))
-    radiobutton_label2 = font.render("Minimax Expected", True, WHITE)
+    radiobutton_label2 = font.render("Expectiminimax", True, WHITE)
     radiobutton2_label_x = radiobutton_x + radiobutton2_image.get_width() + 5
     radiobutton2_label_y = (radiobutton2_y) - (radiobutton_label2.get_height() - radiobutton2_image.get_height()) // 2
     screen.blit(radiobutton_label2, (radiobutton2_label_x, radiobutton2_label_y))
@@ -89,7 +89,7 @@ def main():
     game_over = False
     display_search_tree = False
     alpha_beta_pruning = False
-    minimax_expected = True
+    expectiminimax = True
     global checkbox_image, radiobutton_image, radiobutton2_image
 
     while not game_over:
@@ -128,18 +128,18 @@ def main():
                         print("alpha-beta pruning: ", alpha_beta_pruning)
                         radiobutton_image = radiobutton_checked_image if alpha_beta_pruning else radiobutton_unchecked_image
                         
-                        if minimax_expected == True :
-                            minimax_expected = toggle_flag(minimax_expected)  # toggle the minimax expected flag
-                            print("minimax expected: ", minimax_expected)
-                            radiobutton2_image = radiobutton_checked_image if minimax_expected else radiobutton_unchecked_image
+                        if expectiminimax == True :
+                            expectiminimax = toggle_flag(expectiminimax)  # toggle the minimax expected flag
+                            print("minimax expected: ", expectiminimax)
+                            radiobutton2_image = radiobutton_checked_image if expectiminimax else radiobutton_unchecked_image
                         
                         pygame.display.update()  
                         
                     # if radiobutton2 is clicked
                     if radiobutton_x <= mouse_x < radiobutton_x + radiobutton2_image.get_width() and radiobutton2_y <= mouse_y < radiobutton2_y + radiobutton2_image.get_height():
-                        minimax_expected = toggle_flag(minimax_expected)  # toggle the minimax expected flag
-                        print("minimax expected: ", minimax_expected)
-                        radiobutton2_image = radiobutton_checked_image if minimax_expected else radiobutton_unchecked_image
+                        expectiminimax = toggle_flag(expectiminimax)  # toggle the minimax expected flag
+                        print("minimax expected: ", expectiminimax)
+                        radiobutton2_image = radiobutton_checked_image if expectiminimax else radiobutton_unchecked_image
                         pygame.display.update() 
                         
                         if  alpha_beta_pruning == True :
