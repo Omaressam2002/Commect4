@@ -173,7 +173,7 @@ def main():
                         
                         if current_player == 1 : #AI turn
                             prev_board = board
-                            board = decision(board)
+                            board = decision_maker(board)
                             row, col = find_inserted_checker(prev_board, board)
                             animate_checker_movement(prev_board, row, col, current_player + 1)
                             current_player = switch_players(current_player, players)

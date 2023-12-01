@@ -48,6 +48,7 @@ def draw_start_page():
 
 def game_page():
     pygame.quit()  # Close the Pygame window
+    # FOR LINUX USERS CHANGE python WITH python3
     subprocess.call(["python", "game_page.py"])
     sys.exit()  # Exit the current Python script
 

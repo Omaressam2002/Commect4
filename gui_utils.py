@@ -2,6 +2,7 @@ import pygame
 import time
 import game_page
 from gui_widgets import *
+from minimax_nopruning import *
 
 def is_board_full(board):
     for row in board:
@@ -18,15 +19,20 @@ def switch_players (player, players):
     current_player = (player + 1) % len(players)
     return current_player
 
-def decision(board):
+def decision_maker(board):
     # HASSANOLA ALGO GOES HERE
     # MAKE SURE TO RETURN THE 2D MATRIX AS FOLLOWS :)
-    return [[0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0],
-            [2, 0, 0, 0, 0, 0, 0],
-            [1, 0, 0, 0, 0, 0, 0],]
+    # return [[0, 0, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 0, 0, 0],
+    #         [2, 0, 0, 0, 0, 0, 0],
+    #         [1, 0, 0, 0, 0, 0, 0],]
+    state = State()
+    state.board = np.copy(board)
+    child = decision(state)
+    print(child)
+    return child.board
 
 def find_inserted_checker(prev_board, current_board):
     for col in range(len(prev_board[0])):
