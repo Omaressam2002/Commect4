@@ -34,6 +34,13 @@ def decision_maker(board):
     print(child)
     return child.board
 
+def ai_turn (board, current_player, players):
+    prev_board = board
+    board = decision_maker(board) #CALL WHATEVER ALGORITHM HERE -> HASSAN, OMAR 
+    row, col = find_inserted_checker(prev_board, board)
+    animate_checker_movement(prev_board, row, col, current_player + 1)
+    current_player = switch_players(current_player, players)
+    return current_player, board
 
 def find_inserted_checker(prev_board, current_board):
     for col in range(len(prev_board[0])):

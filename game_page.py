@@ -82,13 +82,17 @@ def main():
 
     board = [[0] * COLS for _ in range(ROWS)]
     players = [1, 2]  # Red = Player 1, Yellow = Player 2
-    current_player = 0  # Index of the current player
+    current_player = 1  # Index of the current player
     current_col = None  # Index of the current column where the checker is being selected
     game_over = False
     display_search_tree = False
     alpha_beta_pruning = False
     expected_minimax = True
     global checkbox_image, radiobutton_image, radiobutton2_image
+    
+    if current_player == 1 : #AI turn 
+        # CHANGED TO 0 TO MAKE THE AI PLAY FIRST 
+        current_player, board = ai_turn(board, current_player, players)
 
     while not game_over:
         for event in pygame.event.get():
@@ -171,13 +175,8 @@ def main():
                         # HERE I WILL ADD THE TURN OF AI BUT NOT IMPLEMENTED YET, BS AKENO 2 USERS DED BA3D
                         current_player = switch_players(current_player, players)
                         
-                        if current_player == 1 : #AI turn
-                            prev_board = board
-                            board = decision_maker(board)
-                            row, col = find_inserted_checker(prev_board, board)
-                            animate_checker_movement(prev_board, row, col, current_player + 1)
-                            current_player = switch_players(current_player, players)
-                            # draw_board (board, current_col, players[current_player])
+                        if current_player == 1 : #AI turn 
+                            current_player, board = ai_turn(board, current_player, players)
                         
                         current_col = None
 
