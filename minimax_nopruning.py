@@ -5,14 +5,17 @@ import random
 import numpy as np
 
 DIMENSIONS = (6,7)
-# DIMENSIONS = (4,4)
 MAX_DEPTH = 5
 AI_PLAYER = 2
 PLAYER = 1
 
+
 class State:
-    def __init__(self):
-        self.board = np.zeros((DIMENSIONS[0],DIMENSIONS[1]), dtype=int)
+    def __init__(self,board=None):
+        if board :
+            self.board = board
+        else :
+            self.board = np.zeros((DIMENSIONS[0],DIMENSIONS[1]), dtype=int)
         self.children = []
         self.parent = None
         self.level = 0
@@ -29,43 +32,69 @@ def decision(state,verbose=False):
     # Resetting the state each decision
     state_reset = State()
     state_reset.board = np.copy(state.board)
-    child,_ = maximize(state_reset,verbose)
+    visited = dict({})
+    child,_ = maximize(state_reset,visited)
 
     return child
 
-def maximize(state,verbose=False):
+def maximize(state,visited):
+    
+    visited_nodes = set(visited.keys())
+    state_str = state.__str__()
+    if state_str in visited_nodes:
+        return state,visited[state_str]
+
+    # either the board is full or the level == k
     if is_terminal(state):
-        return None, heuristic(state)
+        hn = heuristic(state)
+        visited[state_str] = hn
+        return None, hn
     
     max_child = None
     max_utility = -sys.maxsize
-    generate_children(state,AI_PLAYER,verbose)
+    
+    generate_children(state,AI_PLAYER)
 
+    # han add fen we ne update el weights fen??
     for child in state.children:
-        _, utility = minimize(child)
+        _, utility = minimize(child,visited)
         if utility > max_utility:
             max_child = child
             max_utility = utility
+    
+    visited[state.__str__()] = max_utility
+    # 3awzeen max depth+el string el benecreate minno el states tet7at fel header beta3 el function 3ashan hana5odha min el gui
     return max_child, max_utility
 
-def minimize(state,verbose=False):
+
+def minimize(state,visited):
+    visited_nodes = set(visited.keys())
+    state_str = state.__str__()
+    if state_str in visited_nodes:
+        return state,visited[state_str]
+
+    # either the board is full or the level == k
     if is_terminal(state):
-        return None, heuristic(state)
-    
+        hn = heuristic(state)
+        visited[state_str] = hn
+        return None, hn
+
     min_child = None
     min_utility = sys.maxsize
-    generate_children(state,PLAYER,verbose)
+    generate_children(state,PLAYER)
 
     for child in state.children:
-        _, utility = maximize(child)
+        _, utility = maximize(child,visited)
         if utility < min_utility:
             min_child = child
             min_utility = utility
-    
+
+    visited[state.__str__()] = min_utility
     return min_child, min_utility
 
+
 def is_terminal(state):
-    if 0 not in state.board[0] or state.level >= MAX_DEPTH:
+    if state.level == (DIMENSIONS[0]*DIMENSIONS[1]) or state.level >= MAX_DEPTH:
         return True
     return False
 
