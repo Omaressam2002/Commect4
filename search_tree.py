@@ -1,63 +1,67 @@
-import networkx as nx
-import matplotlib.pyplot as plt
+import pygame
+import math
+import random
 
-# Function to create the game tree
-def create_game_tree(board, depth, maximizing_player):
-    if depth == 0:
-        return None
+# Constants for GUI visualization
+WINDOW_WIDTH = 800
+WINDOW_HEIGHT = 600
+NODE_RADIUS = 20
+LEVEL_HEIGHT = 100
+LEVEL_WIDTH = WINDOW_WIDTH // 7
 
-    G = nx.Graph()
+# Initialize Pygame
+pygame.init()
+window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 
-    # Generate all possible moves for the current board state
-    possible_moves = get_possible_moves(board)
+# Function to draw a node
+def draw_node(x, y, color):
+    pygame.draw.circle(window, color, (x, y), NODE_RADIUS)
+    pygame.display.update()
 
-    for move in possible_moves:
-        new_board = make_move(board, move, maximizing_player)
-        child_node = create_game_tree(new_board, depth - 1, not maximizing_player)
+# Function to draw an edge between two nodes
+def draw_edge(x1, y1, x2, y2, color):
+    pygame.draw.line(window, color, (x1, y1), (x2, y2), 2)
+    pygame.display.update()
 
-        if child_node is not None:
-            G.add_edge(board_to_string(board), board_to_string(new_board))
+# Function to calculate the x-coordinate of a node based on its level and position in the level
+def get_node_x(level, position):
+    return (WINDOW_WIDTH // 2) + ((position - 3) * LEVEL_WIDTH)
 
-    return G
+# Function to calculate the y-coordinate of a node based on its level
+def get_node_y(level):
+    return level * LEVEL_HEIGHT
 
-# Function to get all possible moves for a given board state
-def get_possible_moves(board):
-    moves = []
-    for col in range(7):
-        if board[0][col] == 0:
-            moves.append(col)
-    return moves
+# Function to draw the minimax tree
+def draw_tree(states):
+    num_levels = math.ceil(math.log(len(states), 7)) + 1
 
-# Function to make a move on the board
-def make_move(board, col, maximizing_player):
-    new_board = [row[:] for row in board]
-    for row in range(5, -1, -1):
-        if new_board[row][col] == 0:
-            new_board[row][col] = 1 if maximizing_player else 2
-            break
-    return new_board
+    for level in range(1, num_levels + 1):
+        num_nodes_in_level = 7 ** (level - 1)
 
-# Function to convert the board to a string representation
-def board_to_string(board):
-    return ''.join(str(cell) for row in board for cell in row)
+        for position in range(num_nodes_in_level):
+            node_x = get_node_x(level, position)
+            node_y = get_node_y(level)
+            node_color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 
-# Function to visualize the game tree
-def visualize_game_tree(G):
-    pos = nx.spring_layout(G)
-    plt.figure(figsize=(10, 6))
-    nx.draw(G, pos, with_labels=True, node_size=1000, font_size=10)
-    plt.show()
+            draw_node(node_x, node_y, node_color)
 
-# Example usage
-board = [[0, 0, 0, 0, 0, 0, 0],
-         [0, 0, 0, 0, 0, 0, 0],
-         [0, 0, 0, 0, 0, 0, 0],
-         [0, 0, 0, 0, 0, 0, 0],
-         [0, 0, 0, 0, 0, 0, 0],
-         [1, 2, 0, 0, 1, 0, 0]]
+            if level > 1:
+                parent_level = level - 1
+                parent_position = (position - 1) // 7
+                parent_x = get_node_x(parent_level, parent_position)
+                parent_y = get_node_y(parent_level)
 
-depth = 7
-maximizing_player = True
+                draw_edge(node_x, node_y, parent_x, parent_y, (255, 255, 255))
 
-game_tree = create_game_tree(board, depth, maximizing_player)
-visualize_game_tree(game_tree)
+# Generate random objects as states of the 2D board
+states = [random.randint(0, 100) for _ in range(7 ** 3)]
+
+# Call the draw_tree function to visualize the minimax tree
+draw_tree(states)
+
+# Wait for the user to close the window
+while True:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            exit()

@@ -37,13 +37,6 @@ def draw_board(board, current_col, current_player):
 
     # Draw the bottom border of the board frame
     pygame.draw.rect(screen, RED, (board_x - border_width, board_y + HEIGHT, WIDTH + 2 * border_width, border_width))
-
-    # Draw the button
-    # pygame.draw.rect(screen, RED, (button_x, button_y, button_width, button_height), border_radius=10)
-    # button_text = font.render("Display Search Tree", True, DARK_GRAY)
-    # button_text_x = button_x + 10  # Modify the X position to allow overflow
-    # button_text_y = button_y + (button_height - button_text.get_height()) // 2
-    # screen.blit(button_text, (button_text_x, button_text_y))
     
     # Draw the checkbox
     screen.blit(checkbox_image, (checkbox_x, checkbox_y))
@@ -55,7 +48,7 @@ def draw_board(board, current_col, current_player):
     # Define the bold and underlined font
     bold_underline_font = pygame.font.Font(None, 34)
     bold_underline_font.set_underline(True)
-    bold_underline_font.set_bold(True)
+    # bold_underline_font.set_bold(True)
 
     # Render the label using the bold and underlined font
     strategy_label = bold_underline_font.render("Game Strategy: ", True, WHITE)
@@ -76,8 +69,6 @@ def draw_board(board, current_col, current_player):
     
     pygame.display.update()
     
-
-
 def main():
 
     board = [[0] * COLS for _ in range(ROWS)]
@@ -85,15 +76,20 @@ def main():
     current_player = 1  # Index of the current player
     current_col = None  # Index of the current column where the checker is being selected
     game_over = False
-    display_search_tree = False
-    alpha_beta_pruning = False
-    expected_minimax = True
+    display_search_tree_flag = False
+    alpha_beta_pruning_flag = False
+    expected_minimax_flag = True
     global checkbox_image, radiobutton_image, radiobutton2_image
     
-    if current_player == 1 : #AI turn 
-        # CHANGED TO 0 TO MAKE THE AI PLAY FIRST 
-        current_player, board = ai_turn(board, current_player, players)
-
+    # background image
+    background_image = pygame.image.load(BACKGROUND_IMAGE_PATH)
+    background_image = pygame.transform.scale(background_image, (WIDTH+700, HEIGHT+200))
+    
+    screen.blit(background_image, (0, 0))
+    
+    if current_player == 1 : #AI FIRST TURN (MAXIMIZER PLAYER)
+        current_player, board = ai_turn(board, current_player, players, alpha_beta_pruning_flag, expected_minimax_flag)
+    
     while not game_over:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -107,47 +103,42 @@ def main():
                     current_col = (mouse_x - board_x) // CELL_SIZE
                 else:
                     current_col = None
-
-
+            
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if pygame.mouse.get_pressed()[0]:
                     mouse_x, _ = pygame.mouse.get_pos()
                     
-                    # if button_x <= mouse_x < button_x + button_width and button_y <= mouse_y < button_y + button_height:
-                    #     display_search_tree = not display_search_tree # toggle search tree flag
-                    #     print(display_search_tree)
-                    
                     # if the checkbox is clicked
                     if checkbox_x <= mouse_x < checkbox_x + checkbox_image.get_width() and checkbox_y <= mouse_y < checkbox_y + checkbox_image.get_height():
-                        display_search_tree = toggle_flag(display_search_tree)
-                        print("display search tree = ", display_search_tree)
-                        checkbox_image = checkbox_checked_image if display_search_tree else checkbox_unchecked_image
+                        display_search_tree_flag = toggle_flag(display_search_tree_flag)
+                        print("display search tree = ", display_search_tree_flag)
+                        checkbox_image = checkbox_checked_image if display_search_tree_flag else checkbox_unchecked_image
                         pygame.display.update()  
                         
                     # if radiobutton1 is clicked
                     if radiobutton_x <= mouse_x < radiobutton_x + radiobutton_image.get_width() and radiobutton_y <= mouse_y < radiobutton_y + radiobutton_image.get_height():
-                        alpha_beta_pruning = toggle_flag(alpha_beta_pruning)  # toggle the minimax expected flag
-                        print("alpha-beta pruning: ", alpha_beta_pruning)
-                        radiobutton_image = radiobutton_checked_image if alpha_beta_pruning else radiobutton_unchecked_image
+                        alpha_beta_pruning_flag = toggle_flag(alpha_beta_pruning_flag)  # toggle the minimax expected flag
+                        print("alpha-beta pruning: ", alpha_beta_pruning_flag)
+                        radiobutton_image = radiobutton_checked_image if alpha_beta_pruning_flag else radiobutton_unchecked_image
                         
-                        if expected_minimax == True :
-                            expected_minimax = toggle_flag(expected_minimax)  # toggle the minimax expected flag
-                            print("minimax expected: ", expected_minimax)
-                            radiobutton2_image = radiobutton_checked_image if expected_minimax else radiobutton_unchecked_image
+                        if expected_minimax_flag == True :
+                            expected_minimax_flag = toggle_flag(expected_minimax_flag)  # toggle the minimax expected flag
+                            print("minimax expected: ", expected_minimax_flag)
+                            radiobutton2_image = radiobutton_checked_image if expected_minimax_flag else radiobutton_unchecked_image
                         
                         pygame.display.update()  
                         
                     # if radiobutton2 is clicked
                     if radiobutton_x <= mouse_x < radiobutton_x + radiobutton2_image.get_width() and radiobutton2_y <= mouse_y < radiobutton2_y + radiobutton2_image.get_height():
-                        expected_minimax = toggle_flag(expected_minimax)  # toggle the minimax expected flag
-                        print("minimax expected: ", expected_minimax)
-                        radiobutton2_image = radiobutton_checked_image if expected_minimax else radiobutton_unchecked_image
+                        expected_minimax_flag = toggle_flag(expected_minimax_flag)  # toggle the minimax expected flag
+                        print("minimax expected: ", expected_minimax_flag)
+                        radiobutton2_image = radiobutton_checked_image if expected_minimax_flag else radiobutton_unchecked_image
                         pygame.display.update() 
                         
-                        if  alpha_beta_pruning == True :
-                            alpha_beta_pruning = toggle_flag(alpha_beta_pruning)  # toggle the alpha-beta expected flag
-                            print("alpha-beta pruning: ", alpha_beta_pruning)
-                            radiobutton_image = radiobutton_checked_image if alpha_beta_pruning else radiobutton_unchecked_image
+                        if  alpha_beta_pruning_flag == True :
+                            alpha_beta_pruning_flag = toggle_flag(alpha_beta_pruning_flag)  # toggle the alpha-beta expected flag
+                            print("alpha-beta pruning: ", alpha_beta_pruning_flag)
+                            radiobutton_image = radiobutton_checked_image if alpha_beta_pruning_flag else radiobutton_unchecked_image
                         
                         
                     # Check if the mouse press position is within the board's boundaries
@@ -167,18 +158,23 @@ def main():
                             winner = check_win(board)
                             draw_winner_label(winner)
                             print(str(players[current_player]), " WINS")
-                            time.sleep(1)
-                            # GAME OVER -> GAME ENDS, WILL MODIFY IT LATER ISA
-                            # game_over = True
+                            # GAME OVER -> GAME ENDS BUT NOT EXIT
+                            game_over = True
 
                         # Switch to the next player
                         # HERE I WILL ADD THE TURN OF AI BUT NOT IMPLEMENTED YET, BS AKENO 2 USERS DED BA3D
                         current_player = switch_players(current_player, players)
                         
                         if current_player == 1 : #AI turn 
-                            current_player, board = ai_turn(board, current_player, players)
+                            current_player, board = ai_turn(board, current_player, players, alpha_beta_pruning_flag, expected_minimax_flag)
                         
                         current_col = None
+                        
+                        while game_over:
+                            for event in pygame.event.get():
+                                if event.type == pygame.QUIT:
+                                    pygame.quit()
+                                    return
 
         # background image
         background_image = pygame.image.load(BACKGROUND_IMAGE_PATH)
@@ -189,6 +185,8 @@ def main():
 
         pygame.display.set_caption("Connect 4")
         pygame.display.flip()
+        
+        
 
 if __name__ == "__main__":
     main()

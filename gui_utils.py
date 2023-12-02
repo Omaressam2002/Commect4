@@ -34,9 +34,29 @@ def decision_maker(board):
     print(child)
     return child.board
 
-def ai_turn (board, current_player, players):
+def ai_turn (board, current_player, players, alpha_beta_pruning_flag, expected_minimax_flag):
     prev_board = board
-    board = decision_maker(board) #CALL WHATEVER ALGORITHM HERE -> HASSAN, OMAR 
+    if alpha_beta_pruning_flag == False and expected_minimax_flag == False: #Normal mode
+        print("normal mode")
+        
+        
+        # NORMAL MODE ALGORITHM
+        
+        
+    elif alpha_beta_pruning_flag == True: #Alpha-beta pruning mode
+        print("alpha-beta pruning")
+        
+        
+        # ALPHA BETA PRUNING ALGORITHM
+        
+        
+    else: #Expectiminimax mode
+        print("expectiminimax")
+        
+        
+        # EXPECTIMINIMAX ALGORITHM
+        
+    board = decision_maker(board) #HASSAN'S HEURTISTIC FUNCTION
     row, col = find_inserted_checker(prev_board, board)
     animate_checker_movement(prev_board, row, col, current_player + 1)
     current_player = switch_players(current_player, players)
@@ -95,7 +115,7 @@ def animate_checker_movement(board, row, col, player):
     target_pos = (target_x, target_y)
     checker_image = RED_CHECKER_IMAGE if player == 1 else YELLOW_CHECKER_IMAGE
     current_pos = (board_x + col * CELL_SIZE, board_y)
-    step = 10
+    step = 20
 
     while current_pos[1] < target_pos[1]:
 
@@ -105,14 +125,13 @@ def animate_checker_movement(board, row, col, player):
         game_page.screen.blit(checker_image, current_pos)
 
         pygame.display.update()
-        time.sleep(0.005)
+        time.sleep(0.0005)
 
     # Draw the checker at the target position
     game_page.screen.blit(checker_image, target_pos)
     pygame.display.update()
     
 
-    
 def draw_winner_label(player):
     # Determine the player color and text
     color = RED if player == 1 else YELLOW if player == 2 else WHITE
