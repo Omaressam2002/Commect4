@@ -195,13 +195,18 @@ def main():
                             print(str(players[current_player]), " WINS")
                             # GAME OVER -> GAME ENDS BUT NOT EXIT
                             game_over = True
+                            break
 
                         # Switch to the next player
                         # HERE I WILL ADD THE TURN OF AI BUT NOT IMPLEMENTED YET, BS AKENO 2 USERS DED BA3D
                         current_player = switch_players(current_player, players)
                         
-                        if current_player == 1 : #AI turn 
+                        if current_player == 1 : #AI turn
+                            
                             current_player, board = ai_turn(board, current_player, players, alpha_beta_pruning_flag, expected_minimax_flag)
+                            
+                                
+                                
                         
                         current_col = None
                         

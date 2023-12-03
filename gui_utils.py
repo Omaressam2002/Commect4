@@ -28,11 +28,11 @@ def decision_maker(board):
     #         [0, 0, 0, 0, 0, 0, 0],
     #         [2, 0, 0, 0, 0, 0, 0],
     #         [1, 0, 0, 0, 0, 0, 0],]
-    state = State()
-    state.board = np.copy(board)
+    state = State(board)
     child = decision(state)
     print(child)
     return child.board
+     
 
 def ai_turn (board, current_player, players, alpha_beta_pruning_flag, expected_minimax_flag):
     prev_board = board

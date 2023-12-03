@@ -5,17 +5,17 @@ import random
 import numpy as np
 
 DIMENSIONS = (6,7)
-MAX_DEPTH = 5
+MAX_DEPTH = 2
 AI_PLAYER = 2
 PLAYER = 1
 
 
 class State:
-    def __init__(self,board=None):
-        if board :
-            self.board = board
-        else :
+    def __init__(self,board=):
+        if board == None:
             self.board = np.zeros((DIMENSIONS[0],DIMENSIONS[1]), dtype=int)
+        else :
+            self.board = np.array(board)
         self.children = []
         self.parent = None
         self.level = 0
