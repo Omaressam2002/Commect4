@@ -216,6 +216,7 @@ def main():
                                     pygame.quit()
                                     return
 
+
         # background image
         background_image = pygame.image.load(BACKGROUND_IMAGE_PATH)
         background_image = pygame.transform.scale(background_image, (WIDTH+700, HEIGHT+200))
@@ -226,6 +227,15 @@ def main():
         pygame.display.set_caption("Connect 4")
         pygame.display.flip()
         
+    winner = check_win(board)
+    draw_winner_label(winner)
+    print(str(players[current_player]), " WINS")
+                            # GAME OVER -> GAME ENDS BUT NOT EXIT
+    while game_over:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return
 
 if __name__ == "__main__":
     main()

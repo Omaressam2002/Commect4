@@ -28,8 +28,9 @@ def decision_maker(board):
     #         [0, 0, 0, 0, 0, 0, 0],
     #         [2, 0, 0, 0, 0, 0, 0],
     #         [1, 0, 0, 0, 0, 0, 0],]
-    state = State(board)
-    child = decision(state)
+    state = State()
+    state.board = np.copy(board)
+    child,_ = maximize(state)
     print(child)
     return child.board
      

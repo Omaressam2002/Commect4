@@ -11,11 +11,8 @@ PLAYER = 1
 
 
 class State:
-    def __init__(self,board=):
-        if board == None:
-            self.board = np.zeros((DIMENSIONS[0],DIMENSIONS[1]), dtype=int)
-        else :
-            self.board = np.array(board)
+    def __init__(self):
+        self.board = np.zeros((DIMENSIONS[0],DIMENSIONS[1]), dtype=int)
         self.children = []
         self.parent = None
         self.level = 0

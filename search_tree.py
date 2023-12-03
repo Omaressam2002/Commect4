@@ -1,67 +1,90 @@
-import pygame
-import math
-import random
+import tkinter as tk
 
-# Constants for GUI visualization
-WINDOW_WIDTH = 800
-WINDOW_HEIGHT = 600
-NODE_RADIUS = 20
-LEVEL_HEIGHT = 100
-LEVEL_WIDTH = WINDOW_WIDTH // 7
+class TreeVisualizationGUI:
+    def __init__(self, tree):
+        self.tree = tree
+        self.window = tk.Tk()
+        self.window.title("Tree Visualization")
+        
+        # Create a frame to hold the canvas and scrollbars
+        frame = tk.Frame(self.window)
+        frame.pack(fill=tk.BOTH, expand=True)
 
-# Initialize Pygame
-pygame.init()
-window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+        # Create a canvas with scrollbars
+        self.canvas = tk.Canvas(frame, width=800, height=600)
+        self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.canvas.bind("<Configure>", self.on_canvas_configure)
 
-# Function to draw a node
-def draw_node(x, y, color):
-    pygame.draw.circle(window, color, (x, y), NODE_RADIUS)
-    pygame.display.update()
+        x_scrollbar = tk.Scrollbar(frame, orient=tk.HORIZONTAL)
+        x_scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
+        x_scrollbar.config(command=self.canvas.xview)
+        self.canvas.config(xscrollcommand=x_scrollbar.set)
 
-# Function to draw an edge between two nodes
-def draw_edge(x1, y1, x2, y2, color):
-    pygame.draw.line(window, color, (x1, y1), (x2, y2), 2)
-    pygame.display.update()
+        y_scrollbar = tk.Scrollbar(self.window, orient=tk.VERTICAL)
+        y_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        y_scrollbar.config(command=self.canvas.yview)
+        self.canvas.config(yscrollcommand=y_scrollbar.set)
 
-# Function to calculate the x-coordinate of a node based on its level and position in the level
-def get_node_x(level, position):
-    return (WINDOW_WIDTH // 2) + ((position - 3) * LEVEL_WIDTH)
+        self.node_width = 100
+        self.node_height = 50
+        self.x_space = 200  # Increased horizontal padding
+        self.y_space = 50
 
-# Function to calculate the y-coordinate of a node based on its level
-def get_node_y(level):
-    return level * LEVEL_HEIGHT
+    def on_canvas_configure(self, event):
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
-# Function to draw the minimax tree
-def draw_tree(states):
-    num_levels = math.ceil(math.log(len(states), 7)) + 1
+    def draw_tree(self):
+        self._draw_node(self.tree, 400, 50)
 
-    for level in range(1, num_levels + 1):
-        num_nodes_in_level = 7 ** (level - 1)
+    def _draw_node(self, node, x, y, parent_x=None, parent_y=None):
+        board, minimax_value = node.data
+        board_str = '\n'.join(' '.join(str(cell) for cell in row) for row in board)
+        node_text = f"Minimax: {minimax_value}\n\n{board_str}"
+        self.canvas.create_rectangle(x - self.node_width // 2, y - self.node_height // 2,
+                                     x + self.node_width // 2, y + self.node_height // 2,
+                                     fill='lightblue', outline='black')
+        self.canvas.create_text(x, y, text=node_text, width=self.node_width - 10, justify=tk.CENTER)
+        
+        if parent_x is not None and parent_y is not None:
+            self.canvas.create_line(parent_x, parent_y + self.node_height // 2, x, y - self.node_height // 2)
+        
+        if node.children:
+            child_count = len(node.children)
+            x_offset = self.x_space * (child_count - 1) // 2 
+            y_offset = self.y_space
+            for i, child in enumerate(node.children):
+                child_x = x - x_offset + i * self.x_space 
+                child_y = y + y_offset + 100
+                self._draw_node(child, child_x, child_y, x, y)
 
-        for position in range(num_nodes_in_level):
-            node_x = get_node_x(level, position)
-            node_y = get_node_y(level)
-            node_color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+    def run(self):
+        self.window.mainloop()
 
-            draw_node(node_x, node_y, node_color)
+# Example usage
+class TreeNode:
+    def __init__(self, data):
+        self.data = data
+        self.children = []
 
-            if level > 1:
-                parent_level = level - 1
-                parent_position = (position - 1) // 7
-                parent_x = get_node_x(parent_level, parent_position)
-                parent_y = get_node_y(parent_level)
+root_node = TreeNode(([[1, 2, 3], [4, 5, 6], [7, 8, 9]], 10))
+child1 = TreeNode(([[9, 8, 7], [6, 5, 4], [3, 2, 1]], 5))
+child2 = TreeNode(([[0, 1, 0], [0, 1, 0], [0, 1, 0]], -3))
+child3 = TreeNode(([[1, 0, 0], [0, 1, 0], [0, 0, 1]], 8))
+child4 = TreeNode(([[1, 0, 0], [0, 1, 0], [0, 0, 1]], 8))
+child5 = TreeNode(([[1, 0, 0], [0, 1, 0], [0, 0, 1]], 8))
+child6 = TreeNode(([[1, 0, 0], [0, 1, 0], [0, 0, 1]], 8))
+child7 = TreeNode(([[1, 0, 0], [0, 1, 0], [0, 0, 1]], 8))
+child8 = TreeNode(([[1, 0, 0], [0, 1, 0], [0, 0, 1]], 8))
+child9 = TreeNode(([[1, 0, 0], [0, 1, 0], [0, 0, 1]], 8))
+child10 = TreeNode(([[1, 0, 0], [0, 1, 0], [0, 0, 1]], 8))
+child11 = TreeNode(([[1, 0, 0], [0, 1, 0], [0, 0, 1]], 8))
+child12 = TreeNode(([[1, 0, 0], [0, 1, 0], [0, 0, 1]], 8))
 
-                draw_edge(node_x, node_y, parent_x, parent_y, (255, 255, 255))
+root_node.children = [child1, child2, child3]
+child1.children = [child4, child5, child6]
+child2.children = [child7, child8, child9]
+child3.children = [child10, child11, child12]
 
-# Generate random objects as states of the 2D board
-states = [random.randint(0, 100) for _ in range(7 ** 3)]
-
-# Call the draw_tree function to visualize the minimax tree
-draw_tree(states)
-
-# Wait for the user to close the window
-while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            exit()
+gui = TreeVisualizationGUI(root_node)
+gui.draw_tree()
+gui.run()
