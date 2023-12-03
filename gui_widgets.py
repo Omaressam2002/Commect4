@@ -1,11 +1,13 @@
 import pygame, os
 
-# Set up the dimensions of the game board
+# Set up the dimensions of the game
 CELL_SIZE = 80
 ROWS = 6
 COLS = 7
 WIDTH = CELL_SIZE * COLS
-HEIGHT = CELL_SIZE * (ROWS + 1)  
+HEIGHT = CELL_SIZE * (ROWS + 1)
+START_PAGE_WIDTH = 800
+START_PAGE_HEIGHT = 600  
 
 # Set up the colors
 WHITE = (255, 255, 255)
@@ -13,6 +15,7 @@ RED = (238, 30, 35)
 YELLOW = (255, 255, 0)
 BLACK = (0, 0, 0)
 DARK_GRAY = (29, 29, 29)
+GRAY = (200, 200, 200)
 
 # Images
 CELL_IMAGE = pygame.image.load("assets/board_cell.png")
@@ -52,3 +55,5 @@ radiobutton_checked_image = pygame.image.load("assets/radiobutton_checked.png")
 radiobutton_unchecked_image = pygame.image.load("assets/radiobutton_unchecked.png")
 radiobutton_image = radiobutton_unchecked_image
 radiobutton2_image = radiobutton_unchecked_image
+
+start_game_button_rect = pygame.Rect(100, radiobutton2_y + 80, 150, 50)

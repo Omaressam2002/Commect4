@@ -48,7 +48,6 @@ def draw_board(board, current_col, current_player):
     # Define the bold and underlined font
     bold_underline_font = pygame.font.Font(None, 34)
     bold_underline_font.set_underline(True)
-    # bold_underline_font.set_bold(True)
 
     # Render the label using the bold and underlined font
     strategy_label = bold_underline_font.render("Game Strategy: ", True, WHITE)
@@ -67,18 +66,28 @@ def draw_board(board, current_col, current_player):
     radiobutton2_label_y = (radiobutton2_y) - (radiobutton_label2.get_height() - radiobutton2_image.get_height()) // 2
     screen.blit(radiobutton_label2, (radiobutton2_label_x, radiobutton2_label_y))
     
+    # Draw the start game button
+    pygame.draw.rect(screen, GRAY, start_game_button_rect, border_radius=5)
+    start_text = font.render("Start Game", True, BLACK)
+    start_text_rect = start_text.get_rect(center=start_game_button_rect.center)
+    screen.blit(start_text, start_text_rect)
+
+    # If the mouse is hovering over the button
+    if start_game_button_rect.collidepoint(pygame.mouse.get_pos()):
+        pygame.draw.rect(screen, DARK_GRAY, start_game_button_rect, border_radius=5, width=3)
+    
     pygame.display.update()
     
+    
 def main():
-
     board = [[0] * COLS for _ in range(ROWS)]
     players = [1, 2]  # Red = Player 1, Yellow = Player 2
     current_player = 1  # Index of the current player
     current_col = None  # Index of the current column where the checker is being selected
-    game_over = False
+    game_over = True
     display_search_tree_flag = False
     alpha_beta_pruning_flag = False
-    expected_minimax_flag = True
+    expected_minimax_flag = False
     global checkbox_image, radiobutton_image, radiobutton2_image
     
     # background image
@@ -87,22 +96,15 @@ def main():
     
     screen.blit(background_image, (0, 0))
     
-    if current_player == 1 : #AI FIRST TURN (MAXIMIZER PLAYER)
-        current_player, board = ai_turn(board, current_player, players, alpha_beta_pruning_flag, expected_minimax_flag)
-    
-    while not game_over:
+    # wait for the strategy
+    while game_over:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                return
-
+                return 
+            
             if event.type == pygame.MOUSEMOTION:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
-                # Check if the mouse is within the board's boundaries
-                if board_x <= mouse_x < board_x + WIDTH:
-                    current_col = (mouse_x - board_x) // CELL_SIZE
-                else:
-                    current_col = None
             
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if pygame.mouse.get_pressed()[0]:
@@ -140,7 +142,40 @@ def main():
                             print("alpha-beta pruning: ", alpha_beta_pruning_flag)
                             radiobutton_image = radiobutton_checked_image if alpha_beta_pruning_flag else radiobutton_unchecked_image
                         
+                    if start_game_button_rect.collidepoint(event.pos):
+                        game_over = False
                         
+        # background image
+            background_image = pygame.image.load(BACKGROUND_IMAGE_PATH)
+            background_image = pygame.transform.scale(background_image, (WIDTH+700, HEIGHT+200))
+            
+            screen.blit(background_image, (0, 0))
+            draw_board(board, current_col, players[current_player])
+
+            pygame.display.set_caption("Connect 4")
+            pygame.display.flip()
+    
+    if current_player == 1 : #AI FIRST TURN (MAXIMIZER PLAYER)
+        current_player, board = ai_turn(board, current_player, players, alpha_beta_pruning_flag, expected_minimax_flag)
+    
+    while not game_over:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return
+
+            if event.type == pygame.MOUSEMOTION:
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                # Check if the mouse is within the board's boundaries
+                if board_x <= mouse_x < board_x + WIDTH:
+                    current_col = (mouse_x - board_x) // CELL_SIZE
+                else:
+                    current_col = None
+            
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if pygame.mouse.get_pressed()[0]:
+                    mouse_x, _ = pygame.mouse.get_pos()
+                    
                     # Check if the mouse press position is within the board's boundaries
                     if board_x <= mouse_x < board_x + WIDTH:
                         col = (mouse_x - board_x) // CELL_SIZE
@@ -185,7 +220,6 @@ def main():
 
         pygame.display.set_caption("Connect 4")
         pygame.display.flip()
-        
         
 
 if __name__ == "__main__":

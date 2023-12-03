@@ -69,8 +69,9 @@ def find_inserted_checker(prev_board, current_board):
                 return row, col
 
 def count_connected_fours(board, player):
+    
     count = 0
-
+    
     # Check horizontal
     for row in range(ROWS):
         for col in range(COLS - 3):
