@@ -34,7 +34,6 @@ def decision(state,verbose=False):
     state_reset.board = np.copy(state.board)
     visited = dict({})
     child,_ = maximize(state_reset,visited)
-
     return child
 
 def maximize(state,visited):
@@ -46,7 +45,7 @@ def maximize(state,visited):
 
     # either the board is full or the level == k
     if is_terminal(state):
-        hn = heuristic(state)
+        hn = heuristic(state,AI_PLAYER)
         visited[state_str] = hn
         return None, hn
     
@@ -75,7 +74,7 @@ def minimize(state,visited):
 
     # either the board is full or the level == k
     if is_terminal(state):
-        hn = heuristic(state)
+        hn = heuristic(state,PLAYER)
         visited[state_str] = hn
         return None, hn
 
@@ -98,31 +97,69 @@ def is_terminal(state):
         return True
     return False
 
-def heuristic(state):
-    # basic heuristic for now 
-    if who_win(state) == AI_PLAYER:
-        return 1000
-    elif who_win(state) == PLAYER:
-        return -1000
-    return random.randint(-100,100)
+def eval(subarr, turn):
+    opponent_turn = PLAYER
+    if turn == PLAYER:
+        opponent_turn = AI_PLAYER
 
-    # center = num_center(state.board)
+    score = 0
 
-def num_center(board):
-    rows = board.shape[0]
-    cols = board.shape[1]
-    start_row = rows // 3
-    end_row = rows - start_row
-    start_col = cols // 3
-    end_col = cols - start_col 
+    if subarr.count(turn) == 4:
+        score += 100
+    elif subarr.count(turn) == 3 and subarr.count(0) == 1:
+        score += 5
+    elif subarr.count(turn) == 2 and subarr.count(0) == 2:
+        score += 2
+
+    # or decrese it if the oponent has 3 in a row
+    if subarr.count(opponent_turn) == 3 and subarr.count(0) == 1:
+        score -= 4 
+
+    return score  
+
+def heuristic(state,turn):
+    score = 0
+    board = state.board
+    
+    center_count = num_center(board,turn)
+    score += center_count * 5
+
+    # score horizontal
+    for r in range(DIMENSIONS[0]):
+        row_array = [int(i) for i in list(board[r,:])]
+        for c in range(DIMENSIONS[1] - 3):
+            subarr = row_array[c:c + 4]
+            score += eval(subarr, turn)
+
+    # score vertical
+    for c in range(DIMENSIONS[1]):
+        col_array = [int(i) for i in list(board[:,c])]
+        for r in range(DIMENSIONS[0]-3):
+            subarr = col_array[r:r+4]
+            score += eval(subarr, turn)
+
+    # score positively sloped diagonals
+    for r in range(3,DIMENSIONS[0]):
+        for c in range(DIMENSIONS[1] - 3):
+            subarr = [board[r-i][c+i] for i in range(4)]
+            score += eval(subarr, turn)
+
+    # score negatively sloped diagonals
+    for r in range(3,DIMENSIONS[0]):
+        for c in range(3,DIMENSIONS[1]):
+            subarr = [board[r-i][c-i] for i in range(4)]
+            score += eval(subarr, turn)
+
+    return score
+
+def num_center(board,turn):
+    start_row = DIMENSIONS[0] // 3
+    end_row = DIMENSIONS[0] - start_row
+    start_col = DIMENSIONS[1] // 3
+    end_col = DIMENSIONS[1] - start_col 
     center_elements = board[start_row:end_row, start_col:end_col]
-    count_ones = np.count_nonzero(center_elements == 1)
-    count_twos = np.count_nonzero(center_elements == 2)
-    print(center_elements)
-    print(count_ones)
-    print(count_twos)
-    return count_ones - count_twos
-
+    count_ones = np.count_nonzero(center_elements == turn)
+    return count_ones
 
 def generate_children(state,player,verbose=False):
     for j in range(DIMENSIONS[1]):
@@ -137,145 +174,3 @@ def generate_children(state,player,verbose=False):
                     print()
                     # time.sleep(0.5)
                 break
-
-def who_win(state):
-    '''
-    Returns 1 if player 1 wins, 2 if player 2 wins, 0 if no one wins
-    '''
-    # Check horizontal
-    for i in range(DIMENSIONS[0]):
-        for j in range(DIMENSIONS[1]-3):
-            condition_win = state.board[i][j] == state.board[i][j+1] == state.board[i][j+2] == state.board[i][j+3] == 1
-            condition_lose = state.board[i][j] == state.board[i][j+1] == state.board[i][j+2] == state.board[i][j+3] == 2
-
-            if condition_win:
-                return 1
-            elif condition_lose:
-                return 2
-            
-    # Check vertical
-    for i in range(DIMENSIONS[0]-3):
-        for j in range(DIMENSIONS[1]):
-            condition_win = state.board[i][j] == state.board[i+1][j] == state.board[i+2][j] == state.board[i+3][j] == 1
-            condition_lose = state.board[i][j] == state.board[i+1][j] == state.board[i+2][j] == state.board[i+3][j] == 2
-
-            if condition_win:
-                return 1
-            elif condition_lose:
-                return 2
-            
-    # Check diagonal
-    for i in range(DIMENSIONS[0]-3):
-        for j in range(DIMENSIONS[1]-3):
-            condition_win = state.board[i][j] == state.board[i+1][j+1] == state.board[i+2][j+2] == state.board[i+3][j+3] == 1
-            condition_lose = state.board[i][j] == state.board[i+1][j+1] == state.board[i+2][j+2] == state.board[i+3][j+3] == 2
-            if condition_win:
-                return 1
-            elif condition_lose:
-                return 2
-            
-    # Check anti-diagonal
-    for i in range(DIMENSIONS[0]-3):
-        for j in range(3, DIMENSIONS[1]):
-            condition_win = state.board[i][j] == state.board[i+1][j-1] == state.board[i+2][j-2] == state.board[i+3][j-3] == 1
-            condition_lose = state.board[i][j] == state.board[i+1][j-1] == state.board[i+2][j-2] == state.board[i+3][j-3] == 2
-            
-            if condition_win:
-                return 1
-            elif condition_lose:
-                return 2
-    
-    return 0
-
-def input_array():
-    array_4x4 = []
-    for i in range(4):
-        row = input(f"Enter 4 elements for row {i + 1} separated by spaces: ").split()
-        
-        # Check if the user entered exactly 4 elements
-        if len(row) != 4:
-            print("Please enter exactly 4 elements for each row.")
-            break
-        
-        # Convert input elements to integers and append to the array
-        row = [int(element) for element in row]
-        array_4x4.append(row)
-    
-    array = np.array(array_4x4)
-
-    return array
-
-
-
-if __name__ == "__main__":
-    # state.board = np.array([[1,0,0,0],
-    #                         [1,1,0,0],
-    #                         [1,2,1,0],
-    #                         [2,2,0,0]])
-
-    state = State()
-    # while(1):
-    #     # print(f"{state}")
-    #     child = decision(state,verbose=False)
-    #     if child is None:
-    #         print("Game end")
-    #         exit()
-    #     print(child)
-    #     print()
-
-    #     array = input_array()
-    #     # array = np.array([  [0,0,0,0],
-    #     #                     [0,0,0,0],
-    #     #                     [0,0,0,0],
-    #     #                     [1,2,0,0]])
-        
-    #     print()
-    #     time.sleep(0.25)
-    #     state.board = np.copy(array)
-
-
-    # To test generation
-    # state.board[5][0] = 1
-    # generate_children(state)
-    # for child in state.children:
-    #     print(child)
-
-
-    # To test is_terminal
-    # state.board = np.array([[1,1,1,1,1,1,1],
-    #                         [1,1,1,1,1,1,1],
-    #                         [1,1,1,1,1,1,1],
-    #                         [1,1,1,1,1,1,1],
-    #                         [1,1,1,1,1,1,1],
-    #                         [1,1,1,1,1,1,1]])
-    # res = is_terminal(state)
-    # print(res)
-
-
-    # To test who_win
-    # state.board = np.array([[1,2,0,1],
-    #                         [1,2,0,1],
-    #                         [1,2,1,1],
-    #                         [2,2,2,2]])
-    # res = who_win(state)
-    # print(res)
-
-    # test num_center centering
-    # state.board = np.array([[1,2,3,4,5,6,7],
-    #                         [8,9,10,11,12,13,14],
-    #                         [15,16,17,18,19,20,21],
-    #                         [22,23,24,25,26,27,28],
-    #                         [29,30,31,32,33,34,35],
-    #                         [36,37,38,39,40,41,42]
-    #                         ])
-    # res= num_center(state.board)
-    # print(res)
-    # res =  # 17 18 19 # 24 25 26
-
-    # test num_center counting
-    # array = np.random.randint(0, 3, size=(6, 7))
-    # print(array)
-    # res= num_center(array)
-    # print(res)
-
-
