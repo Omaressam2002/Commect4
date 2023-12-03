@@ -1,13 +1,11 @@
 import pygame, os
 
-# Set up the dimensions of the game
+# Set up the dimensions of the game board
 CELL_SIZE = 80
 ROWS = 6
 COLS = 7
 WIDTH = CELL_SIZE * COLS
-HEIGHT = CELL_SIZE * (ROWS + 1)
-START_PAGE_WIDTH = 800
-START_PAGE_HEIGHT = 600  
+HEIGHT = CELL_SIZE * (ROWS + 1)  
 
 # Set up the colors
 WHITE = (255, 255, 255)

@@ -3,13 +3,11 @@ import time
 import game_page
 from gui_widgets import *
 from minimax_nopruning import *
+from MM import *
+from MMpruning import *
+from expectiMM import *
+from Tree import *
 
-def is_board_full(board):
-    for row in board:
-        for cell in row:
-            if cell == 0:
-                return False
-    return True 
 
 def toggle_flag (flag):
     flag = not flag
@@ -19,60 +17,97 @@ def switch_players (player, players):
     current_player = (player + 1) % len(players)
     return current_player
 
-def decision_maker(board):
-    # HASSANOLA ALGO GOES HERE
-    # MAKE SURE TO RETURN THE 2D MATRIX AS FOLLOWS :)
-    # return [[0, 0, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 0, 0, 0],
-    #         [2, 0, 0, 0, 0, 0, 0],
-    #         [1, 0, 0, 0, 0, 0, 0],]
-    state = State()
-    state.board = np.copy(board)
-    child,_ = maximize(state)
-    print(child)
-    return child.board
-     
 
 def ai_turn (board, current_player, players, alpha_beta_pruning_flag, expected_minimax_flag):
-    prev_board = board
-    if alpha_beta_pruning_flag == False and expected_minimax_flag == False: #Normal mode
-        print("normal mode")
-        
-        
-        # NORMAL MODE ALGORITHM
-        
-        
-    elif alpha_beta_pruning_flag == True: #Alpha-beta pruning mode
-        print("alpha-beta pruning")
-        
-        
-        # ALPHA BETA PRUNING ALGORITHM
-        
-        
-    else: #Expectiminimax mode
-        print("expectiminimax")
-        
-        
-        # EXPECTIMINIMAX ALGORITHM
-        
-    board = decision_maker(board) #HASSAN'S HEURTISTIC FUNCTION
-    row, col = find_inserted_checker(prev_board, board)
+    state = State()
+    state.board = np.copy(board)
+    prev_board=board
+    visited = dict({})
+    visited_nodes = set()
+
+    if alpha_beta_pruning_flag :
+        alpha = -sys.maxsize
+        beta = sys.maxsize
+        child,_,_,_ = maximize_alpha_beta(state,visited,visited_nodes,alpha,beta)
+        tree = Tree(state)
+    elif expected_minimax_flag :
+        child,_ = expecti_maximize(state,visited,visited_nodes)
+        tree = Tree(state)   
+    else : 
+        # normal
+        child,_ = maximize(state,visited,visited_nodes)
+        tree = Tree(state)
+    # returned state to be
+    # el mohim a assign el max.child da sa7 ba2a
+
+    # print(state.board)
+    # print(state.max_child.board)
+    # print("_______________")
+    #tree.tree_traverse(state)
+    #child  = state.max_child   
+    #board = decision_maker(board) #HASSAN'S HEURTISTIC FUNCTION
+    row, col = find_inserted_checker(prev_board, child.board)
     animate_checker_movement(prev_board, row, col, current_player + 1)
     current_player = switch_players(current_player, players)
-    return current_player, board
+    return current_player, child.board , tree
 
+
+# complexiy 3alyy bas msh mohim
 def find_inserted_checker(prev_board, current_board):
     for col in range(len(prev_board[0])):
         for row in range(len(prev_board)):
             if prev_board[row][col] != current_board[row][col]:
                 return row, col
 
+
+def animate_checker_movement(board, row, col, player):
+    target_x = board_x + col * CELL_SIZE + (CELL_SIZE // 2) - (RED_CHECKER_IMAGE.get_width() // 2)
+    target_y = board_y + (row + 1) * CELL_SIZE
+    target_pos = (target_x, target_y)
+    checker_image = RED_CHECKER_IMAGE if player == 1 else YELLOW_CHECKER_IMAGE
+    current_pos = (board_x + col * CELL_SIZE, board_y)
+    step = 20
+
+    while current_pos[1] < target_pos[1]:
+
+        game_page.draw_board(board, None, None)
+
+        current_pos = (current_pos[0], current_pos[1] + step)
+        game_page.screen.blit(checker_image, current_pos)
+
+        pygame.display.update()
+        time.sleep(0.0005)
+
+    # Draw the checker at the target position
+    game_page.screen.blit(checker_image, target_pos)
+    pygame.display.update()
+    
+
+
+def draw_winner_label(player,score):
+    # Determine the player color and text
+    color = RED if player == 1 else YELLOW if player == 2 else WHITE
+    text = f"Player {player} wins!\n Score {score[0]}-{score[1]}"
+    font = pygame.font.Font(None, 42)
+
+    label_surface = font.render(text, True, color)
+
+    label_x = (screen_width - label_surface.get_width()) // 2
+    label_y = board_y - label_surface.get_height() - 20
+
+    game_page.screen.blit(label_surface, (label_x, label_y))
+    pygame.display.update()
+
+def is_board_full(board):
+    for row in board:
+        for cell in row:
+            if cell == 0:
+                return False
+    return True 
+
 def count_connected_fours(board, player):
-    
     count = 0
-    
+
     # Check horizontal
     for row in range(ROWS):
         for col in range(COLS - 3):
@@ -103,47 +138,14 @@ def count_connected_fours(board, player):
 def check_win(board):
     player1_count = count_connected_fours(board, 1)
     player2_count = count_connected_fours(board, 2)
-
-    if player1_count > player2_count:
-        return 1
-    elif player2_count > player1_count:
-        return 2
-    else:
-        return 0
-
-def animate_checker_movement(board, row, col, player):
-    target_x = board_x + col * CELL_SIZE + (CELL_SIZE // 2) - (RED_CHECKER_IMAGE.get_width() // 2)
-    target_y = board_y + (row + 1) * CELL_SIZE
-    target_pos = (target_x, target_y)
-    checker_image = RED_CHECKER_IMAGE if player == 1 else YELLOW_CHECKER_IMAGE
-    current_pos = (board_x + col * CELL_SIZE, board_y)
-    step = 20
-
-    while current_pos[1] < target_pos[1]:
-
-        game_page.draw_board(board, None, None)
-
-        current_pos = (current_pos[0], current_pos[1] + step)
-        game_page.screen.blit(checker_image, current_pos)
-
-        pygame.display.update()
-        time.sleep(0.0005)
-
-    # Draw the checker at the target position
-    game_page.screen.blit(checker_image, target_pos)
-    pygame.display.update()
     
+    score = (player1_count,player2_count)
+    if player1_count > player2_count:
+        return 1,score
+    elif player2_count > player1_count:
+        return 2,score
+    else:
+        return 0,score
 
-def draw_winner_label(player):
-    # Determine the player color and text
-    color = RED if player == 1 else YELLOW if player == 2 else WHITE
-    text = f"Player {player} wins!"
-    font = pygame.font.Font(None, 42)
 
-    label_surface = font.render(text, True, color)
 
-    label_x = (screen_width - label_surface.get_width()) // 2
-    label_y = board_y - label_surface.get_height() - 20
-
-    game_page.screen.blit(label_surface, (label_x, label_y))
-    pygame.display.update()

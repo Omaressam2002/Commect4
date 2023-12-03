@@ -9,11 +9,22 @@ MAX_DEPTH = 2
 AI_PLAYER = 2
 PLAYER = 1
 
+# CLARIFICATION BAS 
+# e7na el mafroom kol state leha max child if it was a max state or a min child if it was a min state
+# we leeha list of children
+# el children list de lel tree
+# el max de lil traversal
+# we momkin ne assign a minmax value to each node bardo
+
 
 class State:
     def __init__(self):
         self.board = np.zeros((DIMENSIONS[0],DIMENSIONS[1]), dtype=int)
         self.children = []
+        self.max = None
+        self.max_child = None
+        self.min = None
+        self.min_child = None
         self.parent = None
         self.level = 0
     
@@ -24,77 +35,23 @@ class State:
         self.parent = parent
         self.parent.children.append(self)
         self.level = self.parent.level + 1
-
-def decision(state,verbose=False):
-    # Resetting the state each decision
-    state_reset = State()
-    state_reset.board = np.copy(state.board)
-    visited = dict({})
-    child,_ = maximize(state_reset,visited)
-    return child
-
-def maximize(state,visited):
-    
-    visited_nodes = set(visited.keys())
-    state_str = state.__str__()
-    if state_str in visited_nodes:
-        return state,visited[state_str]
-
-    # either the board is full or the level == k
-    if is_terminal(state):
-        hn = heuristic(state,AI_PLAYER)
-        visited[state_str] = hn
-        return None, hn
-    
-    max_child = None
-    max_utility = -sys.maxsize
-    
-    generate_children(state,AI_PLAYER)
-
-    # han add fen we ne update el weights fen??
-    for child in state.children:
-        _, utility = minimize(child,visited)
-        if utility > max_utility:
-            max_child = child
-            max_utility = utility
-    
-    visited[state.__str__()] = max_utility
-    # 3awzeen max depth+el string el benecreate minno el states tet7at fel header beta3 el function 3ashan hana5odha min el gui
-    return max_child, max_utility
+       
 
 
-def minimize(state,visited):
-    visited_nodes = set(visited.keys())
-    state_str = state.__str__()
-    if state_str in visited_nodes:
-        return state,visited[state_str]
 
-    # either the board is full or the level == k
-    if is_terminal(state):
-        hn = heuristic(state,PLAYER)
-        visited[state_str] = hn
-        return None, hn
-
-    min_child = None
-    min_utility = sys.maxsize
-    generate_children(state,PLAYER)
-
-    for child in state.children:
-        _, utility = maximize(child,visited)
-        if utility < min_utility:
-            min_child = child
-            min_utility = utility
-
-    visited[state.__str__()] = min_utility
-    return min_child, min_utility
+# NOTES
+# np.random.choice(np.arange(5, 8), p=[0.2,0.6,0.2])
+# add gui
+# ba3dein el expectiminimax
 
 
 def is_terminal(state):
-    if state.level == (DIMENSIONS[0]*DIMENSIONS[1]) or state.level >= MAX_DEPTH:
+    if 0 not in state.board[0] or state.level >= MAX_DEPTH:
         return True
     return False
 
-def eval(subarr, turn):
+
+def eval(subarr,turn):
     opponent_turn = PLAYER
     if turn == PLAYER:
         opponent_turn = AI_PLAYER
@@ -147,7 +104,10 @@ def heuristic(state,turn):
             subarr = [board[r-i][c-i] for i in range(4)]
             score += eval(subarr, turn)
 
+    if turn == PLAYER :
+        return -score
     return score
+
 
 def num_center(board,turn):
     start_row = DIMENSIONS[0] // 3
@@ -157,6 +117,7 @@ def num_center(board,turn):
     center_elements = board[start_row:end_row, start_col:end_col]
     count_ones = np.count_nonzero(center_elements == turn)
     return count_ones
+
 
 def generate_children(state,player,verbose=False):
     for j in range(DIMENSIONS[1]):
@@ -171,3 +132,4 @@ def generate_children(state,player,verbose=False):
                     print()
                     # time.sleep(0.5)
                 break
+

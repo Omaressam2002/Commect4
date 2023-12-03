@@ -2,26 +2,35 @@ import pygame
 import sys
 import subprocess
 import os
-from gui_widgets import *
 
-# Start window
+# Game window
+WIDTH = 800
+HEIGHT = 600
+
+# Colors
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+GRAY = (200, 200, 200)
+DARK_GRAY = (100, 100, 100)
+
+# Game window
 pygame.init()
-screen = pygame.display.set_mode((START_PAGE_WIDTH, START_PAGE_HEIGHT))
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 
-start_button_rect = pygame.Rect(START_PAGE_WIDTH // 2 - 75, START_PAGE_HEIGHT // 2 + 150, 150, 50)
+start_button_rect = pygame.Rect(WIDTH // 2 - 75, HEIGHT // 2 + 150, 150, 50)
 
 def draw_start_page():
     # Draw the background image
     background_path = os.path.join("assets", "start_page_background.png")
     background_image = pygame.image.load(background_path)
-    background_image = pygame.transform.scale(background_image, (START_PAGE_WIDTH, START_PAGE_HEIGHT))
+    background_image = pygame.transform.scale(background_image, (WIDTH, HEIGHT))
     screen.blit(background_image, (0, 0))
 
     # Draw the logo image
     logo_path = os.path.join("assets", "game_logo.png")
     logo_image = pygame.image.load(logo_path)
-    logo_rect = logo_image.get_rect(center=(START_PAGE_WIDTH // 2, START_PAGE_HEIGHT // 2 - 50))
+    logo_rect = logo_image.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 50))
     screen.blit(logo_image, logo_rect)
 
     # Draw the start button

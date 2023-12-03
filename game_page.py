@@ -156,7 +156,7 @@ def main():
             pygame.display.flip()
     
     if current_player == 1 : #AI FIRST TURN (MAXIMIZER PLAYER)
-        current_player, board = ai_turn(board, current_player, players, alpha_beta_pruning_flag, expected_minimax_flag)
+        current_player, board , tree = ai_turn(board, current_player, players, alpha_beta_pruning_flag, expected_minimax_flag)
     
     while not game_over:
         for event in pygame.event.get():
@@ -190,9 +190,9 @@ def main():
                         # Check the winner
                         # 0 -> withdrawal, 1 -> red, 2 -> yellow
                         if is_board_full(board):
-                            winner = check_win(board)
-                            draw_winner_label(winner)
-                            print(str(players[current_player]), " WINS")
+                            # winner,score = check_win(board)
+                            # draw_winner_label(winner)
+                            # print(str(players[current_player]), " WINS")
                             # GAME OVER -> GAME ENDS BUT NOT EXIT
                             game_over = True
                             break
@@ -203,7 +203,7 @@ def main():
                         
                         if current_player == 1 : #AI turn
                             
-                            current_player, board = ai_turn(board, current_player, players, alpha_beta_pruning_flag, expected_minimax_flag)
+                            current_player, board , tree= ai_turn(board, current_player, players, alpha_beta_pruning_flag, expected_minimax_flag)
                             
                                 
                                 
@@ -227,10 +227,10 @@ def main():
         pygame.display.set_caption("Connect 4")
         pygame.display.flip()
         
-    winner = check_win(board)
-    draw_winner_label(winner)
+    winner,score = check_win(board)
+    draw_winner_label(winner,score)
     print(str(players[current_player]), " WINS")
-                            # GAME OVER -> GAME ENDS BUT NOT EXIT
+    # GAME OVER -> GAME ENDS BUT NOT EXIT
     while game_over:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
