@@ -7,8 +7,10 @@ from MM import *
 from MMpruning import *
 from expectiMM import *
 from Tree import *
+import timeit
+
 count = 0
-its_tree_timee = 2
+its_tree_timee = [4]
 
 def toggle_flag (flag):
     flag = not flag
@@ -20,6 +22,7 @@ def switch_players (player, players):
 
 def ai_turn (board, current_player, players, alpha_beta_pruning_flag, expected_minimax_flag):
     global count
+    
     state = State()
     state.board = np.copy(board)
     prev_board=board
@@ -27,23 +30,32 @@ def ai_turn (board, current_player, players, alpha_beta_pruning_flag, expected_m
     visited_nodes = set()
 
     if alpha_beta_pruning_flag :
+        start = timeit.timeit()
         alpha = -sys.maxsize
         beta = sys.maxsize
         child,util,_,_ = maximize_alpha_beta(state,visited,visited_nodes,alpha,beta)
         state.max = util
+        end = timeit.timeit()
+        #print(end - start)
         tree = MMTree(state)
     elif expected_minimax_flag :
+        start = timeit.timeit()
         child,util = expecti_maximize(state,visited,visited_nodes)
         state.max = util
+        end = timeit.timeit()
+        #print(end - start)
         tree = MMTree(state)   
     else :
+        start = timeit.timeit()
         child,util = maximize(state,visited,visited_nodes)
         state.max = util
+        end = timeit.timeit()
+        #print(end,start)
         tree = MMTree(state)
 
 
     count +=1
-    if count == its_tree_timee :
+    if count in its_tree_timee :
         tree.tree_traverse(state)
     row, col = find_inserted_checker(prev_board, child.board)
     animate_checker_movement(prev_board, row, col, current_player + 1)

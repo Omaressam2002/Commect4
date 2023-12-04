@@ -15,10 +15,10 @@ class MMTree:
             for child in current.children:
                 queue.append(child)
             if current.parent == None:
-                tree.create_node(root.__str__(),root.__str__())
-            elif current.__str__() not in visited :
-                tree.create_node(current.__str__(),current.__str__(),parent = current.parent.__str__())
+                tree.create_node(root.T(),root.T())
+            elif current.T() not in visited :
+                tree.create_node(current.T(),current.T(),parent = current.parent.T())
             
-            visited.add(current.__str__())
+            visited.add(current.T())
         tree.show()
             

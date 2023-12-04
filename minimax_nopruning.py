@@ -5,7 +5,7 @@ import random
 import numpy as np
 
 DIMENSIONS = (6,7)
-MAX_DEPTH = 2
+MAX_DEPTH = 4
 AI_PLAYER = 2
 PLAYER = 1
 
@@ -21,11 +21,13 @@ class State:
         self.parent = None
         self.level = 0
     
-    def __str__(self):
+    def T(self):
         min = self.min
         max = self.max
         return str(self.board).replace("\n","")+"(min="+str(min)+",max="+str(max)+")"
-    
+   
+    def __str__(self):
+        return str(self.board)
     def setParent(self,parent):
         self.parent = parent
         self.parent.children.append(self)
@@ -55,8 +57,9 @@ def heuristic(state,turn):
     score = 0
     board = state.board
     
-    center_count = num_center(board,turn)
-    score += center_count * 10
+    Mcenter_count = num_Mcenter(board,turn)
+    Lcenter_count = num_lcenter(board,turn)
+    score += Mcenter_count * 5 + Lcenter_count * 5
 
     # score horizontal
     for r in range(DIMENSIONS[0]):
@@ -91,15 +94,23 @@ def heuristic(state,turn):
     return score
 
 
-def num_center(board,turn):
+def num_Mcenter(board,turn):
     start_row = DIMENSIONS[0] // 3
     end_row = DIMENSIONS[0] - start_row
     start_col = DIMENSIONS[1] // 3
     end_col = DIMENSIONS[1] - start_col 
     center_elements = board[start_row:end_row, start_col:end_col]
     count_ones = np.count_nonzero(center_elements == AI_PLAYER)
-    count_zeros = np.count_nonzero(center_elements == PLAYER)
-    return count_ones-count_zeros
+    count_twos = np.count_nonzero(center_elements == PLAYER)
+    return count_ones-count_twos
+
+def num_lcenter(board,turn): 
+    c1 = board[4:6, 3]
+    c2 = board[4:6, 4] # middle low center
+    c3 = board[4:6, 5]
+    count_ones = np.count_nonzero(c1 == AI_PLAYER) + np.count_nonzero(c2 == AI_PLAYER)*4 + np.count_nonzero(c3 == AI_PLAYER)
+    count_twos = np.count_nonzero(c1 == PLAYER) + np.count_nonzero(c2 == PLAYER)*4 + np.count_nonzero(c3 == PLAYER)
+    return count_ones-count_twos
 
 def generate_children(state,player):
     children = []
