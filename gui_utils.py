@@ -75,10 +75,15 @@ def animate_checker_movement(board, row, col, player):
     game_page.screen.blit(checker_image, target_pos)
     pygame.display.update()
     
-def draw_winner_label(player,score):
+def draw_winner_label(player, score):
     # Determine the player color and text
     color = RED if player == 1 else YELLOW if player == 2 else WHITE
-    text = f"Player {player} wins! Score {score[0]}-{score[1]}"
+    
+    text = f"Player {player} wins! "
+    
+    if color == WHITE:
+        text = f"Withdrawal!"
+    
     font = pygame.font.Font(None, 42)
 
     label_surface = font.render(text, True, color)
@@ -87,6 +92,29 @@ def draw_winner_label(player,score):
     label_y = board_y - label_surface.get_height() - 20
 
     game_page.screen.blit(label_surface, (label_x, label_y))
+    pygame.display.update()
+    draw_score_label(player, score)
+    
+    
+def draw_score_label(player, score):
+    color = RED if score[0] > score[1] else YELLOW if score[0] < score[1] else WHITE
+    text1 = f"Score:"
+    text2 = f"Player : {score[0]} - AI : {score[1]}"
+    font = pygame.font.Font(None, 42)
+
+    # Render text1
+    label_surface1 = font.render(text1, True, color)
+    label_x1 = (board_x + WIDTH + 100)
+    label_y1 = checkbox_y + 70
+
+    # Render text2
+    label_surface2 = font.render(text2, True, color)
+    label_x2 = label_x1 - 50
+    label_y2 = label_y1 + label_surface1.get_height() + 20 # Adjusted position for text2
+
+    # Blit both surfaces
+    game_page.screen.blit(label_surface1, (label_x1, label_y1))
+    game_page.screen.blit(label_surface2, (label_x2, label_y2))
     pygame.display.update()
 
 def is_board_full(board):

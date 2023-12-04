@@ -1,67 +1,201 @@
-import pygame
-import math
-import random
+import tkinter as tk
 
-# Constants for GUI visualization
-WINDOW_WIDTH = 800
-WINDOW_HEIGHT = 600
-NODE_RADIUS = 20
-LEVEL_HEIGHT = 100
-LEVEL_WIDTH = WINDOW_WIDTH // 7
+class TreeVisualizationGUI:
+    def __init__(self):
+        self.window = tk.Tk()
+        self.window.title("Tree Visualization")
 
-# Initialize Pygame
-pygame.init()
-window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+        frame = tk.Frame(self.window)
+        frame.pack(fill=tk.BOTH, expand=True)
 
-# Function to draw a node
-def draw_node(x, y, color):
-    pygame.draw.circle(window, color, (x, y), NODE_RADIUS)
-    pygame.display.update()
+        self.canvas = tk.Canvas(frame, width=800, height=600)
+        self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.canvas.bind("<Configure>", self.on_canvas_configure)
 
-# Function to draw an edge between two nodes
-def draw_edge(x1, y1, x2, y2, color):
-    pygame.draw.line(window, color, (x1, y1), (x2, y2), 2)
-    pygame.display.update()
+        x_scrollbar = tk.Scrollbar(frame, orient=tk.HORIZONTAL)
+        x_scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
+        x_scrollbar.config(command=self.canvas.xview)
+        self.canvas.config(xscrollcommand=x_scrollbar.set)
 
-# Function to calculate the x-coordinate of a node based on its level and position in the level
-def get_node_x(level, position):
-    return (WINDOW_WIDTH // 2) + ((position - 3) * LEVEL_WIDTH)
+        y_scrollbar = tk.Scrollbar(self.window, orient=tk.VERTICAL)
+        y_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        y_scrollbar.config(command=self.canvas.yview)
+        self.canvas.config(yscrollcommand=y_scrollbar.set)
 
-# Function to calculate the y-coordinate of a node based on its level
-def get_node_y(level):
-    return level * LEVEL_HEIGHT
+        # Zooming
+        self.zoom_level = 1.0
+        zoom_frame = tk.Frame(self.window)
+        zoom_frame.pack(side=tk.RIGHT, padx=10, pady=10)
 
-# Function to draw the minimax tree
-def draw_tree(states):
-    num_levels = math.ceil(math.log(len(states), 7)) + 1
+        zoom_in_button = tk.Button(
+            zoom_frame, text="Zoom In", command=self.zoom_in
+        )
+        zoom_in_button.pack(pady=5)
 
-    for level in range(1, num_levels + 1):
-        num_nodes_in_level = 7 ** (level - 1)
+        zoom_out_button = tk.Button(
+            zoom_frame, text="Zoom Out", command=self.zoom_out
+        )
+        zoom_out_button.pack(pady=5)
 
-        for position in range(num_nodes_in_level):
-            node_x = get_node_x(level, position)
-            node_y = get_node_y(level)
-            node_color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+        self.node_width = 100
+        self.node_height = 150
+        self.x_space = 400
+        self.y_space = 300
 
-            draw_node(node_x, node_y, node_color)
+        # Dictionary to store line items associated with edges
+        self.edge_lines = {}
 
-            if level > 1:
-                parent_level = level - 1
-                parent_position = (position - 1) // 7
-                parent_x = get_node_x(parent_level, parent_position)
-                parent_y = get_node_y(parent_level)
+    def zoom_in(self):
+        self.zoom(1.1)
 
-                draw_edge(node_x, node_y, parent_x, parent_y, (255, 255, 255))
+    def zoom_out(self):
+        self.zoom(0.9)
 
-# Generate random objects as states of the 2D board
-states = [random.randint(0, 100) for _ in range(7 ** 3)]
+    def zoom(self, scale):
+        # Calculate the new zoom level
+        new_zoom_level = self.zoom_level * scale
+        scaling_factor = new_zoom_level / self.zoom_level
+        self.zoom_level = new_zoom_level
 
-# Call the draw_tree function to visualize the minimax tree
-draw_tree(states)
+        # Scale the canvas to reflect the new zoom level
+        self.canvas.scale("all", 0, 0, scaling_factor, scaling_factor)
 
-# Wait for the user to close the window
-while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            exit()
+        # Update the scroll region
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
+    def on_canvas_configure(self, event):
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
+    def draw_tree(self, root):
+        self.root = root
+        self._draw_node(root, 400, 50)
+
+    def _draw_node(self, node, x, y, parent_x=None, parent_y=None, max=True):
+        board = node.board
+
+        board_str = '\n'.join(' '.join(str(cell) for cell in row) for row in board)
+        node_text = f"Max: {node.max}\nMin: {node.min}\n\n{board_str}"
+
+        node_compound = f"node_{id(node)}"  # Unique tag for each node for dragging
+
+        if max:
+            node_shape = [
+                x, y - self.node_height // 2 - 50,
+                x - self.node_width // 2 - 50, y + self.node_height // 2,
+                x + self.node_width // 2 + 50, y + self.node_height // 2
+            ]
+        else:
+            node_shape = [
+                x, y + self.node_height // 2 + 50,
+                x - self.node_width // 2 - 50, y - self.node_height // 2,
+                x + self.node_width // 2 + 50, y - self.node_height // 2
+            ]
+
+        self.canvas.create_polygon(
+            node_shape,
+            fill='#E10C22', outline='black', tags=node_compound
+        )
+        self.canvas.create_text(
+            x, y, text=node_text, width=self.node_width - 10,
+            justify=tk.CENTER, tags=node_compound
+        )
+
+        if parent_x is not None and parent_y is not None:
+            if not max:
+                line = self.canvas.create_line(
+                    parent_x, parent_y + self.node_height // 2,
+                    x, y - self.node_height // 2, tags=(node_compound, "edge_line")
+                )
+            else:
+                line = self.canvas.create_line(
+                    parent_x, parent_y + self.node_height // 2 + 50,
+                    x, y - self.node_height // 2 - 50, tags=(node_compound, "edge_line")
+                )
+            self.edge_lines[node_compound] = line  # Store the line object with the node_compound tag as the key
+            print(f"Parent: ({parent_x}, {parent_y}) -> Child: ({x}, {y})")
+
+            # Bind events for dragging
+            self.canvas.tag_bind(node_compound, "<ButtonPress-1>",
+                                lambda event, item=node_compound, x=x, y=y: self.on_press(event, item, x, y))
+            self.canvas.tag_bind(node_compound, "<B1-Motion>",
+                                lambda event, item=node_compound, x=x, y=y: self.on_drag(event, item, x, y))
+            self.canvas.tag_bind(node_compound, "<ButtonRelease-1>", self.on_release)
+
+        if node.children:
+            child_count = len(node.children)
+            x_offset = self.x_space * (child_count - 1) // 2
+            y_offset = self.y_space
+            for i, child in enumerate(node.children):
+                child_x = x - x_offset + i * self.x_space
+                if max:
+                    child_y = y + y_offset
+                else:
+                    child_y = y + y_offset + 100
+                self._draw_node(child, child_x, child_y, x, y, not max)
+
+    def on_press(self, event, item, parent_x, parent_y):
+        self.drag_data = {"item": item, "x": event.x, "y": event.y,
+                        "initial_coords": self.canvas.coords(item),
+                        "parent_coords": (parent_x, parent_y),
+                        "offset": (event.x - self.canvas.coords(item)[0], event.y - self.canvas.coords(item)[1])}
+
+    def on_drag(self, event, item, parent_x, parent_y):
+        delta_x = event.x - self.drag_data["x"]
+        delta_y = event.y - self.drag_data["y"]
+
+        # Move the entire compound item
+        self.canvas.move(item, delta_x, delta_y)
+
+        self.drag_data["x"] = event.x
+        self.drag_data["y"] = event.y
+
+        dragged_item = self.drag_data["item"]
+        dragged_x, dragged_y, _, _ = self.canvas.coords(dragged_item)
+
+        for child_tag, line_coords in self.edge_lines.items():
+            original_parent_x, original_parent_y, original_child_x, original_child_y = line_coords
+            original_line = self.canvas.find_withtag(child_tag)
+
+            if original_line:
+                # Calculate the new child coordinates based on the difference between dragged coordinates and initial coordinates
+                new_child_x = original_child_x + (dragged_x - self.drag_data["initial_coords"][0])
+                new_child_y = original_child_y + (dragged_y - self.drag_data["initial_coords"][1])
+
+                # Update the coordinates of the line
+                self.canvas.coords(original_line,
+                                dragged_x, dragged_y + self.node_height // 2,
+                                new_child_x, new_child_y - self.node_height // 2
+                                )
+
+                # Update the stored line coordinates in the edge_lines dictionary
+                self.edge_lines[child_tag] = (dragged_x, dragged_y, new_child_x, new_child_y)
+
+                # If the child has children, update their edges
+                self._update_child_edges(child_tag, new_child_x, new_child_y, dragged_x, dragged_y)
+
+    def _update_child_edges(self, parent_tag, new_parent_x, new_parent_y, dragged_x, dragged_y):
+        # Update the edges of the children of the given parent tag
+        for child_tag, line_coords in self.edge_lines.items():
+            _, _, original_child_x, original_child_y = line_coords
+
+            # Check if the child is a child of the given parent
+            if child_tag.startswith(f"{parent_tag}_child"):
+                # Calculate the new child coordinates based on the difference between dragged coordinates and initial coordinates
+                new_child_x = original_child_x + (dragged_x - self.drag_data["initial_coords"][0])
+                new_child_y = original_child_y + (dragged_y - self.drag_data["initial_coords"][1])
+
+                # Update the coordinates of the line
+                self.canvas.coords(self.edge_lines[child_tag],
+                                dragged_x, dragged_y + self.node_height // 2,
+                                new_child_x, new_child_y - self.node_height // 2
+                                )
+
+                # Update the stored line coordinates in the edge_lines dictionary
+                self.edge_lines[child_tag] = (dragged_x, dragged_y, new_child_x, new_child_y)
+
+    def on_release(self, event):
+        # Clear the drag_data
+        self.drag_data = {}
+
+    def run(self):
+        self.window.mainloop()

@@ -3,6 +3,7 @@ import time
 import os
 from gui_utils import *
 from gui_widgets import *
+from search_tree import *
 
 # Game window
 pygame.init()
@@ -157,8 +158,15 @@ def main():
     
     if current_player == 1 : #AI FIRST TURN (MAXIMIZER PLAYER)
         current_player, board , tree = ai_turn(board, current_player, players, alpha_beta_pruning_flag, expected_minimax_flag)
+        
+        if display_search_tree_flag == True:
+                                tree_visualizer = TreeVisualizationGUI()
+                                tree_visualizer.draw_tree(tree.root)
+                                tree_visualizer.run()
     
     while not game_over:
+        winner, score = check_win(board)
+        draw_score_label(winner, score)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -196,6 +204,16 @@ def main():
                             # GAME OVER -> GAME ENDS BUT NOT EXIT
                             game_over = True
                             break
+                        
+                        
+                        # background image
+                        background_image = pygame.image.load(BACKGROUND_IMAGE_PATH)
+                        background_image = pygame.transform.scale(background_image, (WIDTH+700, HEIGHT+200))
+                        
+                        screen.blit(background_image, (0, 0))
+                        draw_board(board, current_col, players[current_player])
+                        winner, score = check_win(board)
+                        draw_score_label(winner, score)
 
                         # Switch to the next player
                         # HERE I WILL ADD THE TURN OF AI BUT NOT IMPLEMENTED YET, BS AKENO 2 USERS DED BA3D
@@ -205,9 +223,12 @@ def main():
                             
                             current_player, board , tree= ai_turn(board, current_player, players, alpha_beta_pruning_flag, expected_minimax_flag)
                             
+                            if display_search_tree_flag == True:
+                                tree_visualizer = TreeVisualizationGUI()
+                                tree_visualizer.draw_tree(tree.root)
+                                tree_visualizer.run()
                                 
                                 
-                        
                         current_col = None
                         
                         while game_over:
