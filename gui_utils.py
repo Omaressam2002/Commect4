@@ -8,6 +8,7 @@ from MMpruning import *
 from expectiMM import *
 from Tree import *
 count = 0
+its_tree_timee = 2
 
 def toggle_flag (flag):
     flag = not flag
@@ -28,19 +29,22 @@ def ai_turn (board, current_player, players, alpha_beta_pruning_flag, expected_m
     if alpha_beta_pruning_flag :
         alpha = -sys.maxsize
         beta = sys.maxsize
-        child,_,_,_ = maximize_alpha_beta(state,visited,visited_nodes,alpha,beta)
-        tree = Tree(state)
+        child,util,_,_ = maximize_alpha_beta(state,visited,visited_nodes,alpha,beta)
+        state.max = util
+        tree = MMTree(state)
     elif expected_minimax_flag :
-        child,_ = expecti_maximize(state,visited,visited_nodes)
-        tree = Tree(state)   
-    else : 
-        # normal
-        child,_ = maximize(state,visited,visited_nodes)
-        tree = Tree(state)
+        child,util = expecti_maximize(state,visited,visited_nodes)
+        state.max = util
+        tree = MMTree(state)   
+    else :
+        child,util = maximize(state,visited,visited_nodes)
+        state.max = util
+        tree = MMTree(state)
+
 
     count +=1
-    # if count == 5 :
-    #     tree.tree_traverse(state)
+    if count == its_tree_timee :
+        tree.tree_traverse(state)
     row, col = find_inserted_checker(prev_board, child.board)
     animate_checker_movement(prev_board, row, col, current_player + 1)
     current_player = switch_players(current_player, players)

@@ -5,7 +5,7 @@ import random
 import numpy as np
 
 DIMENSIONS = (6,7)
-MAX_DEPTH = 3
+MAX_DEPTH = 2
 AI_PLAYER = 2
 PLAYER = 1
 
@@ -22,7 +22,9 @@ class State:
         self.level = 0
     
     def __str__(self):
-        return str(self.board)
+        min = self.min
+        max = self.max
+        return str(self.board).replace("\n","")+"(min="+str(min)+",max="+str(max)+")"
     
     def setParent(self,parent):
         self.parent = parent
