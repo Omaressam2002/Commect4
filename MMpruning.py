@@ -13,6 +13,7 @@ def maximize_alpha_beta(state,visited,visited_nodes,alpha,beta):
     if is_terminal(state):
         hn = heuristic(state,AI_PLAYER)
         visited[state_str] = hn
+        state.max = hn
         return None, hn , alpha, beta
     
     max_child = None
@@ -49,6 +50,7 @@ def minimize_alpha_beta(state,visited,visited_nodes,alpha,beta):
     if is_terminal(state):
         hn = heuristic(state,PLAYER)
         visited[state_str] = hn
+        state.min = hn
         return None, hn , alpha ,beta
 
     min_child = None

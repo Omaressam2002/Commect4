@@ -7,7 +7,7 @@ from MM import *
 from MMpruning import *
 from expectiMM import *
 from Tree import *
-
+count = 0
 
 def toggle_flag (flag):
     flag = not flag
@@ -17,8 +17,8 @@ def switch_players (player, players):
     current_player = (player + 1) % len(players)
     return current_player
 
-
 def ai_turn (board, current_player, players, alpha_beta_pruning_flag, expected_minimax_flag):
+    global count
     state = State()
     state.board = np.copy(board)
     prev_board=board
@@ -37,28 +37,21 @@ def ai_turn (board, current_player, players, alpha_beta_pruning_flag, expected_m
         # normal
         child,_ = maximize(state,visited,visited_nodes)
         tree = Tree(state)
-    # returned state to be
-    # el mohim a assign el max.child da sa7 ba2a
 
-    # print(state.board)
-    # print(state.max_child.board)
-    # print("_______________")
-    #tree.tree_traverse(state)
-    #child  = state.max_child   
-    #board = decision_maker(board) #HASSAN'S HEURTISTIC FUNCTION
+    count +=1
+    # if count == 5 :
+    #     tree.tree_traverse(state)
     row, col = find_inserted_checker(prev_board, child.board)
     animate_checker_movement(prev_board, row, col, current_player + 1)
     current_player = switch_players(current_player, players)
     return current_player, child.board , tree
 
 
-# complexiy 3alyy bas msh mohim
 def find_inserted_checker(prev_board, current_board):
     for col in range(len(prev_board[0])):
         for row in range(len(prev_board)):
             if prev_board[row][col] != current_board[row][col]:
                 return row, col
-
 
 def animate_checker_movement(board, row, col, player):
     target_x = board_x + col * CELL_SIZE + (CELL_SIZE // 2) - (RED_CHECKER_IMAGE.get_width() // 2)
@@ -82,12 +75,10 @@ def animate_checker_movement(board, row, col, player):
     game_page.screen.blit(checker_image, target_pos)
     pygame.display.update()
     
-
-
 def draw_winner_label(player,score):
     # Determine the player color and text
     color = RED if player == 1 else YELLOW if player == 2 else WHITE
-    text = f"Player {player} wins!\n Score {score[0]}-{score[1]}"
+    text = f"Player {player} wins! Score {score[0]}-{score[1]}"
     font = pygame.font.Font(None, 42)
 
     label_surface = font.render(text, True, color)

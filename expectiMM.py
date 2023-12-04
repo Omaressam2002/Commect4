@@ -4,7 +4,7 @@ from minimax_nopruning import *
 AI_PLAYER = 2
 Player = 1
 
-def expecti_maximize(state,visited=dict({}),visited_nodes=set()): 
+def expecti_maximize(state,visited,visited_nodes): 
     state_str = state.__str__()
     if state_str in visited_nodes:
         return None,visited[state_str] # should we return 
@@ -13,16 +13,51 @@ def expecti_maximize(state,visited=dict({}),visited_nodes=set()):
     if is_terminal(state):
         hn = heuristic(state,AI_PLAYER)
         visited[state_str] = hn
+        state.max = hn
         return None, hn
     
     max_child = None
     max_utility = -sys.maxsize
     
-    generate_children(state,AI_PLAYER)
+    children = generate_children(state,AI_PLAYER)
 
     # han add fen we ne update el weights fen??
-    for child in state.children:
-        _, utility = minimize(child,visited,visited_nodes)
+    for i in range(len(children)):
+        child , col = children[i]
+
+
+        if col == 0 :
+            _,u0 = expecti_minimize(children[i][0],visited,visited_nodes)
+            if i != len(children)-1 and children[i+1][1] == 1: 
+                _,u1 = expecti_minimize(children[i+1][0],visited,visited_nodes)
+                utility = 0.4*u1 + 0.6*u0
+            else :
+                utility = u0
+        elif col == 6:
+            _,u6 = expecti_minimize(children[i][0],visited,visited_nodes)
+            if i != 0 and children[i-1][1] == 5: 
+                _,u5 = expecti_minimize(children[i-1][0],visited,visited_nodes)
+                utility = 0.4*u5 + 0.6*u6
+            else :
+                utility = u6
+        else :
+            _,ui = expecti_minimize(children[i][0],visited,visited_nodes)
+            ui1,ui2 = None , None
+            if i != 0 and children[i-1][1] == col-1:
+                _,ui1 = expecti_minimize(children[i-1][0],visited,visited_nodes)
+            if i != len(children)-1 and children[i+1][1] == col+1:
+                _,ui2 = expecti_minimize(children[i+1][0],visited,visited_nodes)
+            
+            if ui1 and ui2 : 
+                utility = 0.2*ui1 + 0.6*ui + 0.2*ui2
+            elif ui1 :
+                utility = 0.4*ui1 + 0.6*ui
+            elif ui2 :
+                utility = 0.4*ui2 + 0.6*ui
+            else :
+                utility = ui
+
+
         if utility > max_utility:
             max_child = child
             max_utility = utility
@@ -36,7 +71,7 @@ def expecti_maximize(state,visited=dict({}),visited_nodes=set()):
     return max_child, max_utility
 
 
-def expecti_minimize(state,visited=dict({}),visited_nodes=set()):
+def expecti_minimize(state,visited,visited_nodes):
     state_str = state.__str__()
     if state_str in visited_nodes:
         return state,visited[state_str]
@@ -45,14 +80,50 @@ def expecti_minimize(state,visited=dict({}),visited_nodes=set()):
     if is_terminal(state):
         hn = heuristic(state,PLAYER)
         visited[state_str] = hn
+        state.min = hn
         return None, hn
 
     min_child = None
     min_utility = sys.maxsize
-    generate_children(state,PLAYER)
+    # hina raga3 tuple of (child,coll inserted) 
+    children = generate_children(state,PLAYER)
 
-    for child in state.children:
-        _, utility = maximize(child,visited)
+    for i in range(len(children)):
+        child , col = children[i]
+
+        if col == 0 :
+            _,u0 = expecti_maximize(children[i][0],visited,visited_nodes)
+            if i != len(children)-1 and children[i+1][1] == 1: 
+                _,u1 = expecti_maximize(children[i+1][0],visited,visited_nodes)
+                utility = 0.4*u1 + 0.6*u0
+            else :
+                utility = u0
+        elif col == 6:
+            _,u6 = expecti_maximize(children[i][0],visited,visited_nodes)
+            if i != 0 and children[i-1][1] == 5: 
+                _,u5 = expecti_maximize(children[i-1][0],visited,visited_nodes)
+                utility = 0.4*u5 + 0.6*u6
+            else :
+                utility = u6
+        
+        else :
+            _,ui = expecti_maximize(children[i][0],visited,visited_nodes)
+            ui1,ui2 = None , None
+            if i != 0 and children[i-1][1] == col-1:
+                _,ui1 = expecti_maximize(children[i-1][0],visited,visited_nodes)
+            if i != len(children)-1 and children[i+1][1] == col+1:
+                _,ui2 = expecti_maximize(children[i+1][0],visited,visited_nodes)
+            
+            if ui1 and ui2 : 
+                utility = 0.2*ui1 + 0.6*ui + 0.2*ui2
+            elif ui1 :
+                utility = 0.4*ui1 + 0.6*ui
+            elif ui2 :
+                utility = 0.4*ui2 + 0.6*ui
+            else :
+                utility = ui
+        
+
         if utility < min_utility:
             min_child = child
             min_utility = utility

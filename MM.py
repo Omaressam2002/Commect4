@@ -13,6 +13,7 @@ def maximize(state,visited,visited_nodes):
     if is_terminal(state):
         hn = heuristic(state,AI_PLAYER)
         visited[state_str] = hn
+        state.max = hn
         return state, hn
     
     max_child = None
@@ -44,6 +45,7 @@ def minimize(state,visited,visited_nodes):
     if is_terminal(state):
         hn = heuristic(state,PLAYER)
         visited[state_str] = hn
+        state.min = hn
         return None, hn
 
     min_child = None
